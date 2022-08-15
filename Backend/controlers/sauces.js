@@ -17,7 +17,7 @@ exports.createSauce = (req, res) => {
   });
   sauce.save()                                      /* je sauvegarde la nouvelle sauce */
     .then(() => {                                   /* succès */
-        res.status(201).json({message: 'Sauce créée avec succès !'});
+        res.status(201).json({message: 'la sauce a été créée avec succès !'});
     }
   ).catch((error) => {                               /* erreur */
       res.status(400).json({error: error});
@@ -31,21 +31,19 @@ exports.modifySauce = (req, res) => {
         ...JSON.parse(req.body.sauce),              /* si oui je défini le nom du fichier */
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
     } : { ...req.body };                            /* sinon je récupère les datas de la requête */
-
-    delete sauceObject._userId;                     /* suppression de l'id pour que objet non pris par qqun */
-
+    delete sauceObject._userId;                     /* suppression de l'id pour que objet ne soit pas pris par qqun */
     Sauce.findOne({_id: req.params.id})             /* recherche objet dans bdd */
     .then((sauce) => {
         if (sauce.userId != req.auth.userId) {      /* je vérifie s'il appartient au user */
             res.status(403).json({                  /* si ce n'est pas le cas */
-                message : 'Vous n\'êtes pas autorisé à modifier l\'objet !'
+                message : 'Vous n\'êtes pas autorisé à modifier cette sauce !'
             });    
         } else {
             const oldImageUrl = sauce.imageUrl.split('/images/')[1];
             fs.unlink(`images/${oldImageUrl}`, () => {} );                 /* je supprime ancienne image */
             Sauce.updateOne({ _id: req.params.id}, { ...sauceObject, _id: req.params.id}) /* sinon je l'inclus dans la bdd */
             .then(() => res.status(200).json({
-                message : 'Objet modifié!'
+                message : 'La sauce a été modifiée !'
             }))
             .catch(error => res.status(401).json({ error }));
         }
@@ -61,14 +59,14 @@ exports.deleteSauce = (req, res) => {
        .then(sauce => {
            if (sauce.userId != req.auth.userId) {               /* je vérifie le propriétaire */
                res.status(401).json({                           /* si ce n'est pas le bon erreur */
-                message: 'Vous n\'êtes pas autorisé à modifier l\'objet !'
+                message: 'Vous n\'êtes pas autorisé à supprimer cette sauce !'
             });                           
            } else {                                             /* si le propriétaire est bon */
                const filename = sauce.imageUrl.split('/images/')[1]; /* jerécupére le nom du fichier image */
                fs.unlink(`images/${filename}`, () => {          /* je le supprime du dossier image */
                    Sauce.deleteOne({_id: req.params.id})        /* je supprime l'objet de la bdd */
                        .then(() => { res.status(200).json({
-                        message: 'Objet supprimé !'
+                        message: 'La sauce a été supprimée !'
                     })})
                        .catch(error => res.status(401).json({ error }));
                });
@@ -115,7 +113,7 @@ exports.likeSauce = (req, res) => {
                 $push: {usersLiked: req.body.userId}        /* ajout userid userlike */
                 })
             .then(() => { res.status(200).json({
-                message: 'Like Ajouté !'
+                message: 'un Like Ajouté !'
                 })
             })
             .catch(error => res.status(401).json({ error }));
@@ -125,7 +123,7 @@ exports.likeSauce = (req, res) => {
                 $inc: {dislikes: 1},                            /* incrémentation dislike */
                 $push: {usersDisliked: req.body.userId}})       /* ajout userid userdislike*/
             .then(() => { res.status(200).json({
-                message: 'DisLike Ajouté !'
+                message: 'Un DisLike Ajouté !'
             })})
             .catch(error => res.status(401).json({ error }));
         break;
@@ -137,7 +135,7 @@ exports.likeSauce = (req, res) => {
                         $inc: { likes: -1 },                        /* je retire 1 au like */
                         $pull: { usersLiked: req.body.userId } })   /* je retire userid des likes */
                     .then(() => { res.status(200).json({ message:
-                        'Like supprimé !' 
+                        'Un Like supprimé !' 
                         }) 
                     })
                     .catch(error => res.status(400).json({ error }));
@@ -146,14 +144,12 @@ exports.likeSauce = (req, res) => {
                         $inc: { dislikes: -1 },                     /* je retire 1 au dislike */
                         $pull: { usersDisliked: req.body.userId } }) /* je retire userid des dislikes */
                     .then(() => { res.status(200).json({ message:
-                        'Dislike supprimé !' 
+                        'Un Dislike supprimé !' 
                     }) 
                 })
                     .catch(error => res.status(400).json({ error }));
                 }
             })
-            .catch(error => res.status(400).json({ error }))
-        
+            .catch(error => res.status(400).json({ error }))   
     }
-
 }

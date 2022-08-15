@@ -49,7 +49,7 @@ exports.signup = (req, res) => {
     case 1:
         res.status(500).json({message :
             'Le mot de passe doit contenir au moins 8 caractères, dont au moins une majuscule, une minuscule, un chiffre et un symbole'
-        })
+        });
         console.log('Le mot de passe doit contenir au moins 8 caractères, dont au moins une majuscule, une minuscule, un chiffre et un symbole');
         //return(res = 'Le mot de passe');
     }};
