@@ -14,7 +14,7 @@ const rateLimit = require("express-rate-limit");
 // Paramètre rate Limit
 const limiter = rateLimit({
   max: 100,                                 // 100 requêtes maximum
-  windowMs: 60 * 60 * 1000,                 // 1 heures
+  windowMs: 60 * 60 * 1000,                 // 1 heure
   message: "Vous avez atteint la limite de requête, essayer plus tard !"
 });
 
