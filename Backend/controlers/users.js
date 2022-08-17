@@ -46,11 +46,11 @@ exports.signup = (req, res) => {
         })
         .catch(error => res.status(500).json({ error }));
     break;
-    case 1:
+    default:
         res.status(500).json({message :
             'Le mot de passe doit contenir au moins 8 caractères, dont au moins une majuscule, une minuscule, un chiffre et un symbole'
         });
-        console.log('Le mot de passe doit contenir au moins 8 caractères, dont au moins une majuscule, une minuscule, un chiffre et un symbole');
+        console.log('Le mot de passe doit contenir au moins 8 caractères, dont au moins une majuscule, une minuscule, un chiffre et un symbole !');
     }};
 
 /* fonction login */
