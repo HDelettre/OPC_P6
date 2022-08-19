@@ -26,12 +26,7 @@ const User = require('../models/users');
 
 /* fonction signup */
 exports.signup = (req, res) => {
-    let testPasswordResult = 0;
-    if (schemaPassword.validate(req.body.password) == false) {
-        testPasswordResult ++;
-    };
-    switch(testPasswordResult) {
-    case 0:    
+    if (schemaPassword.validate(req.body.password) == true) {   
         bcrypt.hash(req.body.password, 10)
         .then(hash => {                                             /* hachage mot de passe */
             const user = new User({                                 /* création nouvel utilisateur */
@@ -45,10 +40,9 @@ exports.signup = (req, res) => {
                 .catch(error => res.status(400).json({ error }));
         })
         .catch(error => res.status(500).json({ error }));
-    break;
-    default:
-        res.status(500).json({message :
-            'Le mot de passe doit contenir au moins 8 caractères, dont au moins une majuscule, une minuscule, un chiffre et un symbole'
+    } else {
+        res.status(400).json({error :
+            'Mot de passe non valide !'
         });
         console.log('Le mot de passe doit contenir au moins 8 caractères, dont au moins une majuscule, une minuscule, un chiffre et un symbole !');
     }};
