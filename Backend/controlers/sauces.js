@@ -105,48 +105,48 @@ exports.getOneSauce = (req, res) => {
 /* Likes / Dislikes */
 exports.likeSauce = (req, res) => {
     const like = req.body.like;             // je récupére la valeur de like depuis la requête
-    let likeValue = 1;
-    let userString = {};
+    let likeValue = 1;                      // je défini mon paramètre +/-1 like/dislike
+    let userString = {};                    // je défini si like ou dislike
 
     Sauce.findOne({ _id: req.params.id })   // je recherche la sauce
         .then(sauce => {
-
+            // je défini le nombre de like et dislike en mémoire
             let nblike = sauce.usersLiked.length - 1;
             let nbdislike = sauce.usersDisliked.length - 1;
-
+            // si like = 0 & user dans like
             if (like === 0 && sauce.usersLiked.includes(req.body.userId)) {
-                likeValue = -1;
-                userString = 'usersLiked'
-                nblike --;
-            } else if ( like === 0 && sauce.usersDisliked.includes(req.body.userId)) {
-                likeValue = -1;
-                userString = 'usersDisliked';
-                nbdislike --;
-            } else if (  like === 1 && sauce.usersLiked.includes(req.body.userId) == false) {
-                userString = 'usersLiked'
-                nblike ++;
-            } else if ( like === -1  && sauce.usersDisliked.includes(req.body.userId) == false) {
-                likeValue = 1;
-                userString = 'usersDisliked';
-                nbdislike ++;
+                likeValue = -1;             // on enlévera 1 like
+                userString = 'usersLiked'   // dans userlike
+                nblike --;                  // le nombre de like diminue de 1
+            } else if ( like === 0 && sauce.usersDisliked.includes(req.body.userId)) { // si like =0 & user dans dislike
+                likeValue = -1;             // on enlévera 1 dislike
+                userString = 'usersDisliked'; // dans userdislike
+                nbdislike --;               // le nombre de dislike diminue de 1
+            } else if (  like === 1 && sauce.usersLiked.includes(req.body.userId) == false) { // si like = 1 & user non dans userlike
+                userString = 'usersLiked'   // on ajoutera user userliked
+                nblike ++;                  // le nombre de like augmente de 1
+            } else if ( like === -1  && sauce.usersDisliked.includes(req.body.userId) == false) { // si like = -1 & user non dans userdislike
+                likeValue = 1;                      // on ajoutera 1
+                userString = 'usersDisliked';       // dans userdisliked
+                nbdislike ++;                       // dislike augmente de 1
             } else {
-                likeValue = 0;
+                likeValue = 0;                  // pas d'ajout dans like ni dislike
                 userString ='';
             }
 
-            if (likeValue === -1) {
+            if (likeValue === -1) {     // si c'est une suppression
                 sauce.updateOne({
-                    $pull: {[userString]: req.body.userId},
-                    $set: {likes: nblike, dislikes: nbdislike}
+                    $pull: {[userString]: req.body.userId}, // on retire user de like/dislike
+                    $set: {likes: nblike, dislikes: nbdislike} // on met à jour le nombre de like et dislike
                 })
                 . then(() => { res.status(200).json({
                     message: 'Like/Dislike user supprimé !'
                 })})
                 .catch(error => res.status(401).json({ error }));
-            } else if (likeValue === 1) {
+            } else if (likeValue === 1) {       // si c'est un ajout
                 sauce.updateOne({
-                    $push: { [userString]: req.body.userId},
-                    $set: {likes: nblike, dislikes: nbdislike}
+                    $push: { [userString]: req.body.userId},    // on ajoute user dans like/dislike
+                    $set: {likes: nblike, dislikes: nbdislike}  // on met à jour le nombre de like/dislike
                 })
                 . then(() => { res.status(200).json({
                     message: 'Like/Dislike user ajouté !'
